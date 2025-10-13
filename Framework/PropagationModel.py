@@ -1,4 +1,8 @@
 import numpy as np
+from pyitm.itm import ITMAreadBLoss
+
+from Framework.LoRaParameters import LoRaParameters
+
 
 class LogShadow:
 
@@ -7,7 +11,7 @@ class LogShadow:
         self.gamma = gamma
         self.d0 = d0
         self.std = std
-        if self.std<0:
+        if self.std < 0:
             self.std = 0
         self.Lpld0 = Lpld0
         self.GL = GL
@@ -17,8 +21,9 @@ class LogShadow:
         if indoor:
             bpl = np.random.choice([17, 27, 21, 30])  # according Rep. ITU-R P.2346-0
         Lpl = 10 * self.gamma * np.log10(d / self.d0) + np.random.normal(self.Lpld0, self.std) + bpl
-        if Lpl <0:
+        if Lpl < 0:
             Lpl = 0
+
         return tp_dBm + self.GL - Lpl
 
 
@@ -67,7 +72,7 @@ class COST231:
         # self.hb = hb
         # self.metropoliton_center = metropolitan_center
 
-        self.hb = None
+        self.hb = hb
         global Lori
         if fc < 800 or fc > 2000:
             ValueError('Carrier Frequency (in MHz) needs to be between 800 and 2000')
@@ -163,4 +168,58 @@ class COST231:
             L50 = L0 + self.Lrts + Lmsd
         else:
             L50 = L0
+
+        print(f"Total path loss: {Lmsd:.2f} dB")
+
         return tp_dBm - L50 - bpl
+
+
+class ITM:
+    def __init__(self, EPS=25.0, SGM=0.02, EN0=320.0, ModVar=1, deltaH=20.0,
+                 tht_m=2, rht_m=15, TSiteCriteria=1, RSiteCriteria=0,
+                 radio_climate=5, pol=1, pctTime=0.1, pctLoc=0.1, pctConf=0.9,
+                 gt=2.15, gr=5.8):
+        self.ModVar = ModVar
+        self.deltaH = deltaH
+        self.tht_m = tht_m
+        self.rht_m = rht_m
+        self.TSiteCriteria = TSiteCriteria
+        self.RSiteCriteria = RSiteCriteria
+        self.EPS = EPS
+        self.SGM = SGM
+        self.EN0 = EN0
+        for ch in LoRaParameters.CHANNELS:
+            self.frq_mhz = ch / 100000
+        self.radio_climate = radio_climate
+        self.pol = pol
+        self.pctTime = pctTime
+        self.pctLoc = pctLoc
+        self.pctConf = pctConf
+        self.gt = gt
+        self.gr = gr
+
+        # eps               Relative permittivity of the Earth
+        # sgm               Conductivity of the Earth (S/m)
+        # en0               Surface refractivity (N-units)
+        # mod_var            Mode single
+        # delta_h            Terrain irregularity (meters)
+        # tht_m             Transmitter antenna height (meters)
+        # rht_m             Receiver antenna height (meters)
+        # t_site_criteria     Tx antenna deployment criteria (1 = careful)
+        # r_site_criteria     Rx antenna deployment criteria (0 = random)
+        # radio_climate     Radio climate (5 = Continental Temperate)
+        # pol               Antenna polarization (1 = vertical)
+        # pct_time           Time reliability percentage
+        # pct_loc            Location reliability percentage
+        # pct_conf           Confidence interval percentage
+        # fc                Frequency of the signal (MHz)
+
+    def tp_to_rss(self, indoor: bool, tp_dBm: int, d: float):
+        dist_km = d / 1000.0
+
+        dbitm = ITMAreadBLoss(self.ModVar, self.deltaH, self.tht_m, self.rht_m, dist_km,
+                              self.TSiteCriteria, self.RSiteCriteria, self.EPS, self.SGM, self.EN0,
+                              self.frq_mhz, self.radio_climate, self.pol,
+                              self.pctTime, self.pctLoc, self.pctConf)
+
+        return tp_dBm + self.gt + self.gr - dbitm

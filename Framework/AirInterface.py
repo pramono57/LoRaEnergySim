@@ -189,6 +189,7 @@ class AirInterface:
         if node_id not in self.prop_measurements:
             self.prop_measurements[node_id] = {'rss': [], 'snr': [], 'time': []}
         packet.rss = rss
+        print('rss_itm: ', rss)
         snr = self.snr_model.rss_to_snr(rss)
         packet.snr = snr
 

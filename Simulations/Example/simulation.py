@@ -6,7 +6,7 @@ import pickle
 
 import pandas as pd
 
-import SimulationProcess
+from . import SimulationProcess
 from Simulations.GlobalConfig import *
 from Framework import Location as loc
 
@@ -105,7 +105,7 @@ if __name__ == '__main__':
         # r_list = results of running the SimulationProcess.run_helper method for each arg in args
         # the SimulationProcess will start the simulation with the given arguments
         # and return the results you want (see above)
-        
+
         # uncomment if you want to run it sequently (to see output in Spyder for instance)
         # r_list = [SimulationProcess.run_helper(a) for a in args]
         r_list = pool.map(func=SimulationProcess.run_helper, iterable=args)

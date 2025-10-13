@@ -23,7 +23,14 @@ def run(locs, p_size, sigma, sim_time, gateway_location, num_nodes, transmission
     sim_env = simpy.Environment()
     gateway = Gateway(sim_env, gateway_location, max_snr_adr=True, avg_snr_adr=False)
     nodes = []
-    air_interface = AirInterface(gateway, PropagationModel.LogShadow(std=sigma), SNRModel(), sim_env)
+
+    if prop_model == 'log_shadow':
+        air_interface = AirInterface(gateway, PropagationModel.LogShadow(std=sigma), SNRModel(), sim_env)
+    elif prop_model == 'cost231':
+        air_interface = AirInterface(gateway, PropagationModel.COST231(fc=868), SNRModel(), sim_env)
+    else:
+        air_interface = AirInterface(gateway, PropagationModel.ITM(), SNRModel(), sim_env)
+
     for node_id in range(num_nodes):
         energy_profile = EnergyProfile(5.7e-3, 15, tx_power_mW,
                                        rx_power=rx_measurements)

@@ -284,6 +284,8 @@ class Node:
                 self.change_lora_param[lora_param_str] = []
             self.change_lora_param[lora_param_str].append(self.env.now)
 
+        self.log()
+
     def log(self):
         if  LOG_ENABLED:
             print('---------- LOG from Node {} ----------'.format(self.id))

@@ -21,7 +21,7 @@ load = ['0.1', '0.5', '1', '1.5', '2']
 files = {}
 
 for n in load:
-    files[n] = '../results/{}_SF_random.p'.format(n)
+    files[n] = './Simulations/load_variances/Results/True_True_1000_50_{}_SF_random.p'.format(n)
 
 results = dict()
 for n in load:
