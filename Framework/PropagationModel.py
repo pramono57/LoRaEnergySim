@@ -1,5 +1,5 @@
 import numpy as np
-from pyitm.itm import ITMAreadBLoss
+from pyitm.pyitm.itm import ITMAreadBLoss
 
 from Framework.LoRaParameters import LoRaParameters
 
