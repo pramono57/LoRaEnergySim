@@ -147,7 +147,10 @@ class Gateway:
                 self.time_off[time_off_for_channel] = time_off_till
         else:
             downlink_meta_msg.dc_limit_reached = True
+
+        self.log()
         return downlink_msg
+
 
     def check_duty_cycle(self, payload_size, sf, freq, now) -> (bool, float, float):
         from Framework import LoRaPacket
@@ -231,7 +234,6 @@ class Gateway:
             return {'dr': new_dr, 'tp': new_tx_power}
         else:
             return None
-
     def log(self):
         print('\n\t\t GATEWAY')
         print('Received {} packets'.format(self.num_of_packet_received))

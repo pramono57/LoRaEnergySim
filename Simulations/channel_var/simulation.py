@@ -5,9 +5,9 @@ import os
 import pickle
 
 import pandas as pd
-from Location import Location
+from Framework.Location import Location
 import SimulationProcess
-from GlobalConfig import *
+from Simulations.GlobalConfig import *
 
 # The console attempts to auto-detect the width of the display area, but when that fails it defaults to 80
 # characters. This behavior can be overridden with:

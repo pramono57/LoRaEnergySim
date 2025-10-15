@@ -127,12 +127,12 @@ class Node:
         yield self.env.timeout(random_wait)
         self.start_device_active = self.env.now
         if  PRINT_ENABLED:
-            print('{} ms delayed prior to joining'.format(random_wait))
-            print('{} joining the network'.format(self.id))
+            print('{} ms delayed prior to joining (Node -> run)'.format(random_wait))
+            print('{} joining the network (Node -> run)'.format(self.id))
             # TODO ERROR!!!!! self.process
             self.join(self.env)
         if  PRINT_ENABLED:
-            print('{}: joined the network'.format(self.id))
+            print('{}: joined the network (Node -> run)'.format(self.id))
         while True:
             # added also a random wait to accommodate for any timing issues on the node itself
             random_wait = np.random.randint(0,  MAX_DELAY_BEFORE_SLEEP_MS)
@@ -146,7 +146,7 @@ class Node:
 
             # ------------SENDING------------ #
             if  PRINT_ENABLED:
-                print('{}: SENDING packet'.format(self.id))
+                print('{}: SENDING packet (Node -> run)'.format(self.id))
 
             self.unique_packet_id += 1
 
@@ -164,9 +164,11 @@ class Node:
                 yield self.env.process(self.process_downlink_message(downlink_message, packet))
 
             if  PRINT_ENABLED:
-                print('{}: DONE sending'.format(self.id))
+                print('{}: DONE sending (Node -> run)'.format(self.id))
 
             self.num_unique_packets_sent += 1  # at the end to be sure that this packet was tx
+
+            self.log()
 
     # [----JOIN----]        [rx1]
     # computes time spent in different states during join procedure
@@ -183,7 +185,7 @@ class Node:
     def join_tx(self):
 
         if  PRINT_ENABLED:
-            print('{}: \t JOIN TX'.format(self.id))
+            print('{}: \t JOIN TX (Node -> join_tx)'.format(self.id))
         energy = LoRaParameters.JOIN_TX_ENERGY_MJ
 
         power = (LoRaParameters.JOIN_TX_ENERGY_MJ / LoRaParameters.JOIN_TX_TIME_MS) * 1000
@@ -194,7 +196,7 @@ class Node:
 
     def join_wait(self):
         if  PRINT_ENABLED:
-            print('{}: \t JOIN WAIT'.format(self.id))
+            print('{}: \t JOIN WAIT (Node -> join_wait)'.format(self.id))
         self.track_power(self.energy_profile.sleep_power_mW)
         yield self.env.timeout(LoRaParameters.JOIN_ACCEPT_DELAY1)
         energy = LoRaParameters.JOIN_ACCEPT_DELAY1 * self.energy_profile.sleep_power_mW
@@ -245,7 +247,7 @@ class Node:
 
         if not collided:
             if  PRINT_ENABLED:
-                print('{}: \t REC at BS'.format(self.id))
+                print('{}: \t REC at BS (Node -> send)'.format(self.id))
             downlink_message = self.base_station.packet_received(self, packet, self.env.now)
         else:
             self.num_collided += 1
@@ -284,11 +286,9 @@ class Node:
                 self.change_lora_param[lora_param_str] = []
             self.change_lora_param[lora_param_str].append(self.env.now)
 
-        self.log()
-
     def log(self):
         if  LOG_ENABLED:
-            print('---------- LOG from Node {} ----------'.format(self.id))
+            print('---------- LOG from Node {} (Node -> log) ----------'.format(self.id))
             print('\t Location {},{}'.format(self.location.x, self.location.y))
             print('\t Distance from gateway {}'.format(Location.distance(self.location, self.base_station.location)))
             print('\t LoRa Param {}'.format(self.lora_param))
@@ -316,7 +316,7 @@ class Node:
         self.energy_value += packet.lora_param.tp + (5 - packet.lora_param.dr)
 
         if  PRINT_ENABLED:
-            print('{}: \t TX'.format(self.id))
+            print('{}: \t TX (Node -> send_tx)'.format(self.id))
 
         self.change_state(NodeState.RADIO_TX_PREP_TIME_MS)
         yield self.env.timeout(LoRaParameters.RADIO_TX_PREP_TIME_MS)
@@ -340,14 +340,14 @@ class Node:
 
         # RX1 wait             #
         if  PRINT_ENABLED:
-            print('{}: \t WAIT'.format(self.id))
+            print('{}: \t WAIT (Node -> send_rx)'.format(self.id))
 
         self.change_state(NodeState.SLEEP)
 
         yield env.timeout(LoRaParameters.RX_WINDOW_1_DELAY)
 
         if  PRINT_ENABLED:
-            print('{}: \t\t RX1'.format(self.id))
+            print('{}: \t\t RX1 (Node -> send_rx)'.format(self.id))
 
         # changed_state is called internally
         begin = self.env.now
@@ -361,7 +361,7 @@ class Node:
             yield env.timeout(sleep_between_rx1_rx2_window)
 
         if  PRINT_ENABLED:
-            print('{}: \t\t RX2'.format(self.id))
+            print('{}: \t\t RX2 (Node -> send_rx)'.format(self.id))
 
         if not rx_on_rx1:
             # changed_state is called internally
@@ -405,14 +405,14 @@ class Node:
     def sleep(self):
         # ------------SLEEPING------------ #
         if  PRINT_ENABLED:
-            print('{}: START sleeping'.format(self.id))
+            print('{}: START sleeping (Node -> run)'.format(self.id))
         self.change_state(NodeState.SLEEP)
         yield self.env.timeout(self.sleep_time)
 
     def processing(self):
         # ------------PROCESSING------------ #
         if  PRINT_ENABLED:
-            print('{}: PROCESSING'.format(self.id))
+            print('{}: PROCESSING (Node -> run)'.format(self.id))
         self.change_state(NodeState.PROCESS)
         yield self.env.timeout(self.process_time)
 

@@ -153,7 +153,7 @@ class AirInterface:
 
     def collision(self, packet) -> bool:
         if PRINT_ENABLED:
-            print("CHECK node {} (sf:{} bw:{} freq:{:.6e}) #others: {}".format(
+            print("CHECK node {} (sf:{} bw:{} freq:{:.6e}) (AirInterface -> collision)#others: {}".format(
                 packet.node.id, packet.lora_param.sf, packet.lora_param.bw, packet.lora_param.freq,
                 len(self.packages_in_air)))
         if packet.collided:
@@ -189,6 +189,7 @@ class AirInterface:
         if node_id not in self.prop_measurements:
             self.prop_measurements[node_id] = {'rss': [], 'snr': [], 'time': []}
         packet.rss = rss
+        print('\n\t\t AIR INTERFACE')
         print('rss_itm: ', rss)
         snr = self.snr_model.rss_to_snr(rss)
         packet.snr = snr
@@ -212,7 +213,9 @@ class AirInterface:
             # print('Our packet has collided')
         self.packages_in_air.remove(packet)
         gc.collect()
+        self.log()
         return collided
+
 
     def plot_packets_in_air(self):
         plt.figure()

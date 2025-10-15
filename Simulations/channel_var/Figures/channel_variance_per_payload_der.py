@@ -17,7 +17,7 @@ for i in range(len(color)):
     r, g, b = color[i]
     color[i] = (r / 255., g / 255., b / 255.)
 
-file = '../results_True_True_1000_100_SF7.p'
+file = './Simulations/channel_var/Results/old_one_day_sim/True_True_1000_50_SF_random.p'
 
 results = pickle.load(open(file, "rb"))
 path_loss_variances = results['path_loss_variances']
